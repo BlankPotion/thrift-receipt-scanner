@@ -193,13 +193,25 @@ function handleFile(file) {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = function(ev) {
-    const dataUrl = ev.target.result;
-    imageBase64 = dataUrl.split(',')[1];
-    previewImg.src = dataUrl;
-    previewImg.style.display = 'block';
-    uploadArea.style.display = 'none';
-    document.getElementById('changeBtn').style.display = 'block';
-    scanReceipt();
+    const img = new Image();
+    img.onload = function() {
+      const MAX = 1000;
+      let w = img.width, h = img.height;
+      if (w > h && w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+      else if (h > w && h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
+      else if (w > MAX) { w = MAX; h = MAX; }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+      imageBase64 = dataUrl.split(',')[1];
+      previewImg.src = dataUrl;
+      previewImg.style.display = 'block';
+      uploadArea.style.display = 'none';
+      document.getElementById('changeBtn').style.display = 'block';
+      scanReceipt();
+    };
+    img.src = ev.target.result;
   };
   reader.readAsDataURL(file);
 }
