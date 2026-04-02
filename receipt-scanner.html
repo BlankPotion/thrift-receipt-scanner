@@ -77,20 +77,9 @@
   <h1>Thrift Receipt Scanner</h1>
   <p class="subtitle">Snap a receipt → AI fills in your inventory sheet</p>
 
-  <div class="card">
-    <h2>1. Google Sheet connection</h2>
-    <div class="sheet-setup">
-      <h3>Web App URL</h3>
-      <div id="urlSavedView" class="url-saved" style="display:none;">
-        <span>&#10003; Sheet connected</span>
-        <button onclick="clearSavedUrl()">Change URL</button>
-      </div>
-      <div id="urlInputView">
-        <input type="url" id="sheetUrl" placeholder="https://script.google.com/macros/s/.../exec" />
-        <button onclick="saveUrl()" style="font-size:13px; padding:6px 14px; background:#2D6A4F; color:#fff; border:none; border-radius:7px; cursor:pointer; font-weight:600; margin-bottom:8px;">Save URL</button>
-        <p>Paste your Google Apps Script web app URL here. See the setup instructions below to get this URL.</p>
-      </div>
-    </div>
+  <div class="card" style="display:flex; align-items:center; gap:10px; padding:14px 20px;">
+    <div style="width:10px; height:10px; border-radius:50%; background:#2D6A4F; flex-shrink:0;"></div>
+    <span style="font-size:14px; font-weight:600; color:#1B4332;">1. Sheet connected</span>
   </div>
 
   <div class="card">
@@ -186,39 +175,9 @@ function doGet(e) {
 <script>
 let imageBase64 = null;
 let parsedItems = [];
-const LS_KEY = 'thrift_scanner_sheet_url';
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwnPYSbjR82zyfZkSMEyzHjRVXqheY_WkeE-TgTWU1-G2-9wdReKfS4TfjuxMayBTVyzA/exec';
 
-function loadSavedUrl() {
-  const saved = localStorage.getItem(LS_KEY);
-  if (saved) {
-    document.getElementById('sheetUrl').value = saved;
-    document.getElementById('urlSavedView').style.display = 'flex';
-    document.getElementById('urlInputView').style.display = 'none';
-  }
-}
-
-function saveUrl() {
-  const val = document.getElementById('sheetUrl').value.trim();
-  if (!val) { showStatus('Please enter a URL first.', 'error'); return; }
-  localStorage.setItem(LS_KEY, val);
-  document.getElementById('urlSavedView').style.display = 'flex';
-  document.getElementById('urlInputView').style.display = 'none';
-  showStatus('URL saved — you\'re all set!', 'success');
-  setTimeout(() => document.getElementById('statusMsg').style.display = 'none', 2500);
-}
-
-function clearSavedUrl() {
-  localStorage.removeItem(LS_KEY);
-  document.getElementById('sheetUrl').value = '';
-  document.getElementById('urlSavedView').style.display = 'none';
-  document.getElementById('urlInputView').style.display = 'block';
-}
-
-function getSavedUrl() {
-  return localStorage.getItem(LS_KEY) || document.getElementById('sheetUrl').value.trim();
-}
-
-loadSavedUrl();
+function getSavedUrl() { return SHEET_URL; }
 
 const uploadArea = document.getElementById('uploadArea');
 const fileInput = document.getElementById('fileInput');
