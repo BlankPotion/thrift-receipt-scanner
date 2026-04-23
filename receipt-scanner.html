@@ -111,6 +111,14 @@
         <label>Source / store name</label>
         <input type="text" id="storeName" placeholder="e.g. Goodwill, Salvation Army" />
       </div>
+      <div class="field">
+        <label>Sales tax rate</label>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <input type="number" id="taxRate" value="9.2" step="0.1" min="0" max="20" style="width:80px;" />
+          <span style="font-size:14px; color:#555;">%</span>
+          <span style="font-size:12px; color:#888;">(Snohomish County default)</span>
+        </div>
+      </div>
 
       <div id="itemsList" class="items-list"></div>
 
@@ -175,7 +183,7 @@ function doGet(e) {
 <script>
 let imageBase64 = null;
 let parsedItems = [];
-const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzcVNb_U9eqQlWHNFMyBMwmPU0ANZMlYrpJVeWUWwLJrk87QtmQgqRRZa_XqAQ3agvCHw/exec';
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbx8dfUuKVxWurea96LVIwfP_BOYKmnmTwU520SQkDgCZPBjMhX-J-8MnP365HRF_ucURw/exec';
 
 function getSavedUrl() { return SHEET_URL; }
 
@@ -348,6 +356,7 @@ async function sendToSheet() {
 
   const date = document.getElementById('datePurchased').value;
   const source = document.getElementById('storeName').value;
+  const taxRate = parseFloat(document.getElementById('taxRate').value) / 100 || 0.092;
 
   const selectedItems = parsedItems
     .map((_, i) => {
@@ -372,7 +381,7 @@ async function sendToSheet() {
     const response = await fetch(sheetUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items: selectedItems, source: source }),
+      body: JSON.stringify({ items: selectedItems, source: source, taxRate: taxRate }),
       mode: 'no-cors'
     });
 
