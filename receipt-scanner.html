@@ -323,20 +323,20 @@ function renderItems() {
 
   list.innerHTML = parsedItems.map((item, i) => `
     <div class="item-row">
-      <input type="checkbox" class="item-check" id="check_${i}" checked />
-      <div style="flex:1;">
-        <div style="display:flex; gap:8px; align-items:center;">
-          <input type="text" value="${escHtml(item.name)}" id="name_${i}"
-            style="flex:1; padding:5px 8px; border:1.5px solid #ccc; border-radius:6px; font-size:13px;" />
-          <select id="cat_${i}" style="padding:5px 8px; border:1.5px solid #ccc; border-radius:6px; font-size:12px; color:#333;">
+      <input type="checkbox" class="item-check" id="check_${i}" checked style="margin-top:4px; flex-shrink:0;" />
+      <div style="flex:1; min-width:0;">
+        <input type="text" value="${escHtml(item.name)}" id="name_${i}"
+          style="width:100%; padding:5px 8px; border:1.5px solid #ccc; border-radius:6px; font-size:13px; margin-bottom:6px; box-sizing:border-box;" />
+        <div style="display:flex; gap:6px; align-items:center;">
+          <select id="cat_${i}" style="flex:1; min-width:0; padding:5px 6px; border:1.5px solid #ccc; border-radius:6px; font-size:12px; color:#333;">
             ${categories.map(c => `<option ${c === item.category ? 'selected' : ''}>${c}</option>`).join('')}
           </select>
+          <div style="display:flex; align-items:center; gap:3px; flex-shrink:0;">
+            <span style="font-size:13px; color:#666;">$</span>
+            <input type="number" value="${item.cost.toFixed(2)}" id="cost_${i}" step="0.01" min="0"
+              style="width:72px; padding:5px 6px; border:1.5px solid #ccc; border-radius:6px; font-size:13px; text-align:right;" />
+          </div>
         </div>
-      </div>
-      <div style="display:flex; align-items:center; gap:4px; margin-left:8px;">
-        <span style="font-size:13px; color:#666;">$</span>
-        <input type="number" value="${item.cost.toFixed(2)}" id="cost_${i}" step="0.01" min="0"
-          style="width:64px; padding:5px 6px; border:1.5px solid #ccc; border-radius:6px; font-size:13px; text-align:right;" />
       </div>
     </div>
   `).join('');
