@@ -183,7 +183,7 @@ function doGet(e) {
 <script>
 let imageBase64 = null;
 let parsedItems = [];
-const SHEET_URL = 'https://script.google.com/macros/s/AKfycbx8dfUuKVxWurea96LVIwfP_BOYKmnmTwU520SQkDgCZPBjMhX-J-8MnP365HRF_ucURw/exec';
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzGGa1x_08qJlKJVUDudqHGxvvQz2veffn2ScefELEA5Xdfgxufrh5D0vkKxLg-QIGU/exec';
 
 function getSavedUrl() { return SHEET_URL; }
 
@@ -259,6 +259,7 @@ async function scanReceipt() {
 For each item, provide:
 - name: descriptive item name (e.g. "Flannel shirt", "Denim jeans", "Leather boots")
 - category: one of Tops, Bottoms, Shoes, Outerwear, Accessories, Dress, Other
+- gender: one of Mens, Womens, Unisex, Kids (infer from item name/description if possible, default to Unisex if unclear)
 - cost: numeric price in dollars (just the number, no $ sign)
 
 Also extract:
@@ -270,7 +271,7 @@ Respond ONLY with valid JSON in this exact format, no other text:
   "store": "store name or empty string",
   "date": "YYYY-MM-DD or empty string",
   "items": [
-    {"name": "item name", "category": "category", "cost": 4.99},
+    {"name": "item name", "category": "category", "gender": "Unisex", "cost": 4.99},
     ...
   ]
 }`;
@@ -320,6 +321,7 @@ Respond ONLY with valid JSON in this exact format, no other text:
 function renderItems() {
   const list = document.getElementById('itemsList');
   const categories = ['Tops','Bottoms','Shoes','Outerwear','Accessories','Dress','Other'];
+  const genders = ['Mens','Womens','Unisex','Kids'];
 
   list.innerHTML = parsedItems.map((item, i) => `
     <div class="item-row">
@@ -327,15 +329,18 @@ function renderItems() {
       <div style="flex:1; min-width:0;">
         <input type="text" value="${escHtml(item.name)}" id="name_${i}"
           style="width:100%; padding:5px 8px; border:1.5px solid #ccc; border-radius:6px; font-size:13px; margin-bottom:6px; box-sizing:border-box;" />
-        <div style="display:flex; gap:6px; align-items:center;">
+        <div style="display:flex; gap:6px; align-items:center; margin-bottom:6px;">
           <select id="cat_${i}" style="flex:1; min-width:0; padding:5px 6px; border:1.5px solid #ccc; border-radius:6px; font-size:12px; color:#333;">
             ${categories.map(c => `<option ${c === item.category ? 'selected' : ''}>${c}</option>`).join('')}
           </select>
-          <div style="display:flex; align-items:center; gap:3px; flex-shrink:0;">
-            <span style="font-size:13px; color:#666;">$</span>
-            <input type="number" value="${item.cost.toFixed(2)}" id="cost_${i}" step="0.01" min="0"
-              style="width:72px; padding:5px 6px; border:1.5px solid #ccc; border-radius:6px; font-size:13px; text-align:right;" />
-          </div>
+          <select id="gender_${i}" style="flex:1; min-width:0; padding:5px 6px; border:1.5px solid #ccc; border-radius:6px; font-size:12px; color:#333;">
+            ${genders.map(g => `<option ${g === item.gender ? 'selected' : ''}>${g}</option>`).join('')}
+          </select>
+        </div>
+        <div style="display:flex; align-items:center; gap:3px;">
+          <span style="font-size:13px; color:#666;">$</span>
+          <input type="number" value="${item.cost.toFixed(2)}" id="cost_${i}" step="0.01" min="0"
+            style="width:72px; padding:5px 6px; border:1.5px solid #ccc; border-radius:6px; font-size:13px; text-align:right;" />
         </div>
       </div>
     </div>
@@ -364,6 +369,7 @@ async function sendToSheet() {
       return {
         name: document.getElementById('name_' + i).value,
         category: document.getElementById('cat_' + i).value,
+        gender: document.getElementById('gender_' + i).value,
         cost: parseFloat(document.getElementById('cost_' + i).value) || 0,
         date: date
       };
