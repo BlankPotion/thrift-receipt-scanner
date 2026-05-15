@@ -217,21 +217,7 @@ document.addEventListener('drop', async e => {
   dragOverlay.classList.remove('active');
   uploadArea.classList.remove('drag-over');
 
-  let files = [];
-
-  // Try DataTransferItemList first (handles Mac Photos and most modern browsers)
-  if (e.dataTransfer.items && e.dataTransfer.items.length) {
-    const itemPromises = Array.from(e.dataTransfer.items)
-      .filter(item => item.kind === 'file' && item.type.startsWith('image/'))
-      .map(item => item.getAsFile());
-    files = itemPromises.filter(Boolean);
-  }
-
-  // Fallback to FileList
-  if (!files.length && e.dataTransfer.files && e.dataTransfer.files.length) {
-    files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
-  }
-
+  let files = await extractDroppedFiles(e.dataTransfer);
   if (!files.length) return;
 
   if (multiMode) {
@@ -240,6 +226,38 @@ document.addEventListener('drop', async e => {
     handleSingleFile(files[0]);
   }
 });
+
+async function extractDroppedFiles(dataTransfer) {
+  const files = [];
+
+  // Method 1: webkit file entries (handles Finder and most Mac drag sources correctly)
+  if (dataTransfer.items && dataTransfer.items.length) {
+    const entryPromises = Array.from(dataTransfer.items)
+      .filter(item => item.kind === 'file')
+      .map(item => {
+        // Try webkit entry first
+        const entry = item.webkitGetAsEntry ? item.webkitGetAsEntry() : null;
+        if (entry && entry.isFile) {
+          return new Promise(resolve => {
+            entry.file(f => resolve(f), () => resolve(item.getAsFile()));
+          });
+        }
+        // Fall back to direct file
+        return Promise.resolve(item.getAsFile());
+      });
+
+    const resolved = await Promise.all(entryPromises);
+    const imageFiles = resolved.filter(f => f && f.type.startsWith('image/'));
+    if (imageFiles.length) return imageFiles;
+  }
+
+  // Method 2: FileList fallback
+  if (dataTransfer.files && dataTransfer.files.length) {
+    return Array.from(dataTransfer.files).filter(f => f.type.startsWith('image/'));
+  }
+
+  return files;
+}
 
 // ---- Single mode ----
 const uploadArea = document.getElementById('uploadArea');
