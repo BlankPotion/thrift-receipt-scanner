@@ -211,13 +211,29 @@ document.addEventListener('dragleave', e => {
   if (dragCounter <= 0) { dragCounter = 0; dragOverlay.classList.remove('active'); }
 });
 document.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); });
-document.addEventListener('drop', e => {
+document.addEventListener('drop', async e => {
   e.preventDefault(); e.stopPropagation();
   dragCounter = 0;
   dragOverlay.classList.remove('active');
   uploadArea.classList.remove('drag-over');
-  const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+
+  let files = [];
+
+  // Try DataTransferItemList first (handles Mac Photos and most modern browsers)
+  if (e.dataTransfer.items && e.dataTransfer.items.length) {
+    const itemPromises = Array.from(e.dataTransfer.items)
+      .filter(item => item.kind === 'file' && item.type.startsWith('image/'))
+      .map(item => item.getAsFile());
+    files = itemPromises.filter(Boolean);
+  }
+
+  // Fallback to FileList
+  if (!files.length && e.dataTransfer.files && e.dataTransfer.files.length) {
+    files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+  }
+
   if (!files.length) return;
+
   if (multiMode) {
     handleMultiDrop(files);
   } else {
