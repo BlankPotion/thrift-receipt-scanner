@@ -88,11 +88,14 @@
   .action-row { display: flex; gap: 10px; margin-top: 4px; }
   .result-section { display: none; }
 
+  .drag-overlay { display: none; position: fixed; inset: 0; background: rgba(45,106,79,0.15); border: 3px dashed #2D6A4F; z-index: 999; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: #1B4332; pointer-events: none; border-radius: 0; }
+  .drag-overlay.active { display: flex; }
   .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
   @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
+<div class="drag-overlay" id="dragOverlay">📷 Drop photos to add</div>
 <div class="container">
   <h1>Thrift Receipt Scanner</h1>
   <p class="subtitle">Snap receipts → AI fills your inventory sheet</p>
@@ -119,8 +122,8 @@
       <div class="upload-area" id="uploadArea">
         <input type="file" id="fileInput" accept="image/*" />
         <div class="upload-icon">📷</div>
-        <strong>Tap to take photo or upload</strong>
-        <p>Supports JPG, PNG, HEIC</p>
+        <strong>Tap to upload or drag &amp; drop</strong>
+        <p>Supports JPG, PNG, HEIC · Drag anywhere on the page</p>
       </div>
       <div id="changeBtn" style="display:none; margin-top:10px;">
         <button class="btn-secondary" onclick="resetSingle()">Use a different photo</button>
@@ -129,7 +132,7 @@
 
     <!-- Multi mode -->
     <div id="multiMode" style="display:none;">
-      <p style="font-size:12px; color:#888; margin-bottom:10px;">Add up to 6 photos. Mix photos from different stores — AI will group them automatically.</p>
+      <p style="font-size:12px; color:#888; margin-bottom:10px;">Add up to 6 photos. Mix photos from different stores — AI will group them automatically. Drag photos anywhere on the page to add them.</p>
       <div class="photo-grid" id="photoGrid"></div>
       <input type="file" id="multiFileInput" accept="image/*" multiple style="display:none;" />
     </div>
@@ -193,13 +196,42 @@ function compressImage(file) {
   });
 }
 
+// ---- Drag and drop: intercept at document level to prevent browser opening files ----
+const dragOverlay = document.getElementById('dragOverlay');
+let dragCounter = 0;
+
+document.addEventListener('dragenter', e => {
+  e.preventDefault(); e.stopPropagation();
+  dragCounter++;
+  dragOverlay.classList.add('active');
+});
+document.addEventListener('dragleave', e => {
+  e.preventDefault(); e.stopPropagation();
+  dragCounter--;
+  if (dragCounter <= 0) { dragCounter = 0; dragOverlay.classList.remove('active'); }
+});
+document.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); });
+document.addEventListener('drop', e => {
+  e.preventDefault(); e.stopPropagation();
+  dragCounter = 0;
+  dragOverlay.classList.remove('active');
+  uploadArea.classList.remove('drag-over');
+  const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+  if (!files.length) return;
+  if (multiMode) {
+    handleMultiDrop(files);
+  } else {
+    handleSingleFile(files[0]);
+  }
+});
+
 // ---- Single mode ----
 const uploadArea = document.getElementById('uploadArea');
 const fileInput = document.getElementById('fileInput');
 uploadArea.addEventListener('click', () => fileInput.click());
 uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
 uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
-uploadArea.addEventListener('drop', e => { e.preventDefault(); uploadArea.classList.remove('drag-over'); handleSingleFile(e.dataTransfer.files[0]); });
+uploadArea.addEventListener('drop', e => { e.preventDefault(); uploadArea.classList.remove('drag-over'); });
 fileInput.addEventListener('change', e => handleSingleFile(e.target.files[0]));
 
 async function handleSingleFile(file) {
@@ -227,8 +259,7 @@ function resetSingle() {
 }
 
 // ---- Multi mode ----
-document.getElementById('multiFileInput').addEventListener('change', async function(e) {
-  const files = Array.from(e.target.files);
+async function handleMultiDrop(files) {
   const remaining = 6 - uploadedPhotos.length;
   for (const file of files.slice(0, remaining)) {
     const compressed = await compressImage(file);
@@ -236,6 +267,10 @@ document.getElementById('multiFileInput').addEventListener('change', async funct
     if (!isDupe) uploadedPhotos.push(compressed);
   }
   renderPhotoGrid();
+}
+
+document.getElementById('multiFileInput').addEventListener('change', async function(e) {
+  await handleMultiDrop(Array.from(e.target.files));
   this.value = '';
 });
 
