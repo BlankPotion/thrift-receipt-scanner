@@ -107,13 +107,17 @@
 
   <div class="card">
     <h2>Upload receipt photos</h2>
-    <div class="toggle-row">
-      <span class="toggle-label">Multi-receipt mode</span>
-      <label class="toggle">
-        <input type="checkbox" id="multiToggle" onchange="toggleMode()" />
-        <span class="slider"></span>
-      </label>
-      <span class="toggle-hint" id="toggleHint">Single receipt</span>
+    <div style="margin-bottom:16px;">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+        <span class="toggle-label">Multi-receipt mode</span>
+        <label class="toggle">
+          <input type="checkbox" id="multiToggle" onchange="toggleMode()" />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div id="modeDescription" style="font-size:12px; padding:6px 10px; border-radius:8px; background:#F0F7F4; color:#1B4332; border:1px solid #B7D7C2;">
+        <strong>Single receipt mode</strong> — upload one photo, scan immediately
+      </div>
     </div>
 
     <!-- Single mode -->
@@ -168,7 +172,9 @@ function toggleMode() {
   document.getElementById('singleMode').style.display = multiMode ? 'none' : 'block';
   document.getElementById('multiMode').style.display = multiMode ? 'block' : 'none';
   document.getElementById('scanBtnWrapper').style.display = multiMode ? 'block' : 'none';
-  document.getElementById('toggleHint').textContent = multiMode ? 'Multiple receipts / stores' : 'Single receipt';
+  document.getElementById('modeDescription').innerHTML = multiMode
+    ? '<strong>Multi-receipt mode</strong> — add up to 6 photos from one or more stores, AI groups them automatically'
+    : '<strong>Single receipt mode</strong> — upload one photo, scan immediately';
   resetAll();
   if (multiMode) renderPhotoGrid();
 }
@@ -350,6 +356,26 @@ function showStatus(msg, type, progress) {
 function buildPrompt() {
   return `You are analyzing photos of one or more thrift store receipts. Photos may be different sections of the same receipt, or receipts from completely different stores.
 
+CRITICAL RECEIPT PARSING RULES:
+1. Some receipts (like Value Village/Savers) print items in this multi-line format:
+   - Line 1: Item code (e.g. "SP-28761") and original price
+   - Line 2: Item description (e.g. "MEN-CAS PANTS") — THIS IS THE ITEM NAME
+   - Line 3: Discount label (e.g. "Senior Discount") and discount amount in parentheses like ($1.80)
+   - Line 4: "Net Price:" and the final price after discount
+   For these receipts: use the DESCRIPTION line as the item name, and use the NET PRICE as the cost. NEVER use "Senior Discount", "Member Discount", or any discount label as an item name. NEVER use a discount amount as the cost.
+
+2. Translate abbreviated thrift store item codes into readable names:
+   - MEN-CAS PANTS → "Casual Pants"
+   - WMN-LT JACKETS → "Light Jacket"
+   - MEN-S/S CASUAL → "Short Sleeve Casual Shirt"
+   - WMN-S/S BLOUSE → "Short Sleeve Blouse"
+   - MEN-L/S SHIRT → "Long Sleeve Shirt"
+   - MEN-CAS SHORTS → "Casual Shorts"
+   - MEN-ACT SHORTS → "Athletic Shorts"
+   - Apply the same logic to any other abbreviated codes
+
+3. Skip non-clothing items. Any item starting with HW- (housewares), or clearly electronics, candles, serviceware etc. should be excluded entirely.
+
 Group all items by store. For each store group provide:
 - store: Full store name in Title Case. For chain stores include city if visible in the receipt address, formatted as "Store Name (City)" e.g. "Goodwill (Edmonds)", "Value Village (Lynnwood)". If no city visible, just use store name. If store is unidentifiable, use "Unknown Store".
 - date: purchase date in YYYY-MM-DD format if visible, otherwise empty string
@@ -357,14 +383,14 @@ Group all items by store. For each store group provide:
 - tax_amount: numeric tax charged if visible (number only), otherwise null
 - tax_rate: if BOTH subtotal and tax_amount are visible, calculate as tax_amount/subtotal rounded to 4 decimal places (e.g. 0.0921). Otherwise null.
 - tax_estimated: true if tax_rate could not be calculated from receipt data, false if calculated
-- items: array of purchased items
+- items: clothing and accessories only
 
 For each item:
-- name: descriptive name in Title Case (e.g. "Flannel Shirt", "Levi's Denim Jeans"). If receipt only prints a generic code like "Clothing" or "Misc", use it but set low_confidence to true
+- name: readable descriptive name in Title Case translated from the receipt description. Never use discount labels or item codes as names.
 - category: one of Tops, Bottoms, Shoes, Outerwear, Accessories, Dress, Other
-- gender: one of Mens, Womens, Unisex, Kids — infer from item name if possible
-- cost: numeric price (number only, no $ sign)
-- low_confidence: true if item name was vague, unclear or generic — otherwise false
+- gender: one of Mens, Womens, Unisex, Kids — infer from item description
+- cost: the NET PRICE after all discounts have been applied. If no net price line exists, use the listed price. Never use a discount amount as the cost.
+- low_confidence: true if the item description was unclear or could not be reliably translated
 
 If multiple photos show the same store, merge into one group. Keep separate receipts from the same chain as separate groups only if dates differ.
 
