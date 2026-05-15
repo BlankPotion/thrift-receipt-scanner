@@ -14,13 +14,28 @@
   .card { background: #fff; border-radius: 12px; border: 1px solid #e0e0e0; padding: 20px; margin-bottom: 16px; }
   .card h2 { font-size: 15px; font-weight: 600; margin-bottom: 12px; color: #1B4332; }
 
-  .upload-area { border: 2px dashed #B7D7C2; border-radius: 10px; padding: 32px 16px; text-align: center; cursor: pointer; transition: background 0.2s; background: #F0F7F4; }
+  .toggle-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .toggle-label { font-size: 14px; font-weight: 600; color: #444; }
+  .toggle { position: relative; display: inline-block; width: 44px; height: 24px; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #ccc; border-radius: 24px; transition: 0.3s; }
+  .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+  input:checked + .slider { background: #2D6A4F; }
+  input:checked + .slider:before { transform: translateX(20px); }
+  .toggle-hint { font-size: 12px; color: #888; }
+
+  .upload-area { border: 2px dashed #B7D7C2; border-radius: 10px; padding: 28px 16px; text-align: center; cursor: pointer; transition: background 0.2s; background: #F0F7F4; }
   .upload-area:hover, .upload-area.drag-over { background: #D8F3DC; }
   .upload-area input { display: none; }
-  .upload-area p { font-size: 14px; color: #555; margin-top: 8px; }
-  .upload-icon { font-size: 32px; }
+  .upload-area p { font-size: 13px; color: #555; margin-top: 6px; }
+  .upload-icon { font-size: 28px; }
 
-  .preview-img { width: 100%; border-radius: 8px; max-height: 260px; object-fit: contain; background: #f0f0f0; display: none; margin-bottom: 12px; }
+  .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+  .photo-thumb { position: relative; border-radius: 8px; overflow: hidden; aspect-ratio: 3/4; background: #f0f0f0; }
+  .photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .photo-thumb .remove-btn { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.6); color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; font-weight: 600; }
+  .add-photo-btn { border: 2px dashed #B7D7C2; border-radius: 8px; aspect-ratio: 3/4; background: #F0F7F4; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 12px; color: #2D6A4F; font-weight: 600; }
+  .add-photo-btn:hover { background: #D8F3DC; }
 
   button { font-size: 14px; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; padding: 10px 20px; transition: background 0.2s, opacity 0.2s; }
   .btn-primary { background: #2D6A4F; color: #fff; width: 100%; padding: 13px; font-size: 15px; }
@@ -30,155 +45,180 @@
   .btn-secondary:hover { background: #e0e0e0; }
   .btn-success { background: #2D6A4F; color: #fff; flex: 1; padding: 12px; font-size: 15px; }
   .btn-success:hover { background: #1B4332; }
+  .btn-success:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-store { background: #F0F7F4; color: #1B4332; border: 1.5px solid #B7D7C2; font-size: 13px; padding: 7px 14px; }
+  .btn-store:hover { background: #D8F3DC; }
 
   .field { margin-bottom: 14px; }
   .field label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 5px; }
   .field input, .field select { width: 100%; padding: 9px 12px; border: 1.5px solid #ccc; border-radius: 8px; font-size: 14px; color: #1a1a1a; background: #fff; outline: none; }
   .field input:focus, .field select:focus { border-color: #2D6A4F; }
-  .field .hint { font-size: 12px; color: #888; margin-top: 3px; }
-
-  .row { display: flex; gap: 12px; }
-  .row .field { flex: 1; }
 
   .status { font-size: 13px; padding: 10px 14px; border-radius: 8px; margin-bottom: 12px; }
   .status.loading { background: #FFF8E1; color: #7a5800; border: 1px solid #FFE082; }
   .status.error { background: #FFEBEE; color: #8b0000; border: 1px solid #EF9A9A; }
   .status.success { background: #D8F3DC; color: #1B4332; border: 1px solid #B7D7C2; }
 
-  .result-section { display: none; }
-  .action-row { display: flex; gap: 10px; margin-top: 4px; }
+  .progress-bar { height: 6px; background: rgba(0,0,0,0.1); border-radius: 3px; margin-top: 8px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #2D6A4F; border-radius: 3px; transition: width 0.4s ease; }
 
-  .sheet-setup { background: #F0F7F4; border-radius: 10px; padding: 16px; border: 1px solid #B7D7C2; }
-  .sheet-setup h3 { font-size: 14px; font-weight: 600; color: #1B4332; margin-bottom: 8px; }
-  .sheet-setup input { width: 100%; padding: 9px 12px; border: 1.5px solid #B7D7C2; border-radius: 8px; font-size: 13px; margin-bottom: 8px; outline: none; }
-  .sheet-setup input:focus { border-color: #2D6A4F; }
-  .sheet-setup p { font-size: 12px; color: #555; line-height: 1.5; }
-  .sheet-setup a { color: #2D6A4F; font-weight: 600; }
-  .url-saved { display: flex; align-items: center; justify-content: space-between; background: #D8F3DC; border: 1px solid #B7D7C2; border-radius: 8px; padding: 9px 12px; margin-bottom: 8px; }
-  .url-saved span { font-size: 13px; color: #1B4332; font-weight: 600; }
-  .url-saved button { font-size: 12px; padding: 4px 10px; background: transparent; border: 1px solid #2D6A4F; color: #2D6A4F; border-radius: 6px; cursor: pointer; font-weight: 600; }
-  .url-saved button:hover { background: #B7D7C2; }
+  .store-group { border: 1.5px solid #B7D7C2; border-radius: 10px; margin-bottom: 14px; overflow: hidden; }
+  .store-group-header { background: #F0F7F4; padding: 12px 14px; display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+  .store-group-header .store-name-display { font-size: 14px; font-weight: 700; color: #1B4332; flex: 1; }
+  .store-group-header .item-count { font-size: 12px; color: #666; }
+  .store-group-header .collapse-icon { font-size: 11px; color: #888; transition: transform 0.2s; }
+  .store-group-header.collapsed .collapse-icon { transform: rotate(-90deg); }
+  .store-group-body { padding: 14px; border-top: 1px solid #B7D7C2; }
+  .store-group-body.hidden { display: none; }
+
+  .tax-badge { font-size: 11px; padding: 2px 7px; border-radius: 10px; margin-left: 4px; }
+  .tax-calculated { background: #D8F3DC; color: #1B4332; }
+  .tax-estimated { background: #FFF3E0; color: #7a4000; }
+
+  .items-list { margin-bottom: 12px; }
+  .item-row { padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+  .item-row:last-child { border-bottom: none; }
+  .item-row-top { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+  .item-check { accent-color: #2D6A4F; width: 16px; height: 16px; cursor: pointer; margin-top: 6px; flex-shrink: 0; }
+  .item-row-inputs { display: flex; gap: 6px; align-items: center; }
+
+  .warn-badge { font-size: 11px; background: #FFF3E0; color: #7a4000; border: 1px solid #FFCC80; padding: 2px 7px; border-radius: 10px; white-space: nowrap; }
+  .submitted-badge { font-size: 11px; background: #D8F3DC; color: #1B4332; border: 1px solid #B7D7C2; padding: 2px 8px; border-radius: 10px; }
+
+  .action-row { display: flex; gap: 10px; margin-top: 4px; }
+  .result-section { display: none; }
 
   .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  .tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; background: #D8F3DC; color: #1B4332; margin-left: 6px; vertical-align: middle; }
-
-  .items-list { margin-bottom: 12px; }
-  .item-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
-  .item-row:last-child { border-bottom: none; }
-  .item-check { accent-color: #2D6A4F; width: 16px; height: 16px; cursor: pointer; }
-  .item-name { flex: 1; font-size: 14px; }
-  .item-price { font-size: 14px; font-weight: 600; color: #2D6A4F; min-width: 56px; text-align: right; }
 </style>
 </head>
 <body>
 <div class="container">
   <h1>Thrift Receipt Scanner</h1>
-  <p class="subtitle">Snap a receipt → AI fills in your inventory sheet</p>
+  <p class="subtitle">Snap receipts → AI fills your inventory sheet</p>
 
   <div class="card" style="display:flex; align-items:center; gap:10px; padding:14px 20px;">
     <div style="width:10px; height:10px; border-radius:50%; background:#2D6A4F; flex-shrink:0;"></div>
-    <span style="font-size:14px; font-weight:600; color:#1B4332;">1. Sheet connected</span>
+    <span style="font-size:14px; font-weight:600; color:#1B4332;">Sheet connected</span>
   </div>
 
   <div class="card">
-    <h2>2. Upload receipt</h2>
-    <img id="previewImg" class="preview-img" alt="Receipt preview" />
-    <div class="upload-area" id="uploadArea">
-      <input type="file" id="fileInput" accept="image/*" />
-      <div class="upload-icon">📷</div>
-      <strong>Tap to take photo or upload</strong>
-      <p>Supports JPG, PNG, HEIC</p>
+    <h2>Upload receipt photos</h2>
+    <div class="toggle-row">
+      <span class="toggle-label">Multi-receipt mode</span>
+      <label class="toggle">
+        <input type="checkbox" id="multiToggle" onchange="toggleMode()" />
+        <span class="slider"></span>
+      </label>
+      <span class="toggle-hint" id="toggleHint">Single receipt</span>
     </div>
-    <div id="changeBtn" style="display:none; margin-top: 10px;">
-      <button class="btn-secondary" onclick="resetUpload()">Use a different photo</button>
+
+    <!-- Single mode -->
+    <div id="singleMode">
+      <img id="previewImg" style="width:100%; border-radius:8px; max-height:220px; object-fit:contain; background:#f0f0f0; display:none; margin-bottom:12px;" alt="Receipt" />
+      <div class="upload-area" id="uploadArea">
+        <input type="file" id="fileInput" accept="image/*" />
+        <div class="upload-icon">📷</div>
+        <strong>Tap to take photo or upload</strong>
+        <p>Supports JPG, PNG, HEIC</p>
+      </div>
+      <div id="changeBtn" style="display:none; margin-top:10px;">
+        <button class="btn-secondary" onclick="resetSingle()">Use a different photo</button>
+      </div>
     </div>
+
+    <!-- Multi mode -->
+    <div id="multiMode" style="display:none;">
+      <p style="font-size:12px; color:#888; margin-bottom:10px;">Add up to 6 photos. Mix photos from different stores — AI will group them automatically.</p>
+      <div class="photo-grid" id="photoGrid"></div>
+      <input type="file" id="multiFileInput" accept="image/*" multiple style="display:none;" />
+    </div>
+  </div>
+
+  <!-- Scan button (multi only) -->
+  <div id="scanBtnWrapper" style="display:none; margin-bottom:16px;">
+    <button class="btn-primary" onclick="scanMulti()" id="scanBtn" disabled>Scan all photos</button>
   </div>
 
   <div id="statusMsg" class="status" style="display:none;"></div>
 
   <div class="result-section" id="resultSection">
-    <div class="card">
-      <h2>3. Confirm items <span class="tag" id="itemCountTag"></span></h2>
-      <p style="font-size:13px; color:#666; margin-bottom:12px;">Check the items you want to add. Uncheck any you want to skip.</p>
-
-      <div class="field">
-        <label>Date purchased</label>
-        <input type="date" id="datePurchased" />
-      </div>
-      <div class="field">
-        <label>Source / store name</label>
-        <input type="text" id="storeName" placeholder="e.g. Goodwill, Salvation Army" />
-      </div>
-      <div class="field">
-        <label>Sales tax rate</label>
-        <div style="display:flex; align-items:center; gap:8px;">
-          <input type="number" id="taxRate" value="9.2" step="0.1" min="0" max="20" style="width:80px;" />
-          <span style="font-size:14px; color:#555;">%</span>
-          <span style="font-size:12px; color:#888;">(Snohomish County default)</span>
-        </div>
-      </div>
-
-      <div id="itemsList" class="items-list"></div>
-
-      <div class="action-row">
-        <button class="btn-success" id="sendBtn" onclick="sendToSheet()">Add to Google Sheet</button>
-        <button class="btn-secondary" onclick="resetAll()">Start over</button>
-      </div>
+    <div id="storeGroupsContainer"></div>
+    <div class="action-row">
+      <button class="btn-success" id="sendBtn" onclick="sendAllToSheet()">Add all to Google Sheet</button>
+      <button class="btn-secondary" onclick="resetAll()">Start over</button>
     </div>
   </div>
 </div>
 
-
-
 <script>
-let imageBase64 = null;
-let parsedItems = [];
 const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwg-pnVvwiw-qpyGs4L-XCUbbFIeWof6de6VsV-5WmF4A4NPI6KPEve8zt61Wh7THm11w/exec';
+const PROXY_URL = 'https://receipt-proxy.woodymgu.workers.dev/';
 
-function getSavedUrl() { return SHEET_URL; }
+let multiMode = false;
+let uploadedPhotos = [];
+let storeGroups = [];
 
+// ---- Toggle ----
+function toggleMode() {
+  multiMode = document.getElementById('multiToggle').checked;
+  document.getElementById('singleMode').style.display = multiMode ? 'none' : 'block';
+  document.getElementById('multiMode').style.display = multiMode ? 'block' : 'none';
+  document.getElementById('scanBtnWrapper').style.display = multiMode ? 'block' : 'none';
+  document.getElementById('toggleHint').textContent = multiMode ? 'Multiple receipts / stores' : 'Single receipt';
+  resetAll();
+  if (multiMode) renderPhotoGrid();
+}
+
+// ---- Compress image ----
+function compressImage(file) {
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 1000;
+        let w = img.width, h = img.height;
+        if (w > h && w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+        else if (h >= w && h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+        resolve({ dataUrl, base64: dataUrl.split(',')[1] });
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// ---- Single mode ----
 const uploadArea = document.getElementById('uploadArea');
 const fileInput = document.getElementById('fileInput');
-const previewImg = document.getElementById('previewImg');
-
 uploadArea.addEventListener('click', () => fileInput.click());
 uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
 uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
-uploadArea.addEventListener('drop', e => { e.preventDefault(); uploadArea.classList.remove('drag-over'); handleFile(e.dataTransfer.files[0]); });
-fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+uploadArea.addEventListener('drop', e => { e.preventDefault(); uploadArea.classList.remove('drag-over'); handleSingleFile(e.dataTransfer.files[0]); });
+fileInput.addEventListener('change', e => handleSingleFile(e.target.files[0]));
 
-function handleFile(file) {
+async function handleSingleFile(file) {
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(ev) {
-    const img = new Image();
-    img.onload = function() {
-      const MAX = 1000;
-      let w = img.width, h = img.height;
-      if (w > h && w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
-      else if (h > w && h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
-      else if (w > MAX) { w = MAX; h = MAX; }
-      const canvas = document.createElement('canvas');
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-      imageBase64 = dataUrl.split(',')[1];
-      previewImg.src = dataUrl;
-      previewImg.style.display = 'block';
-      uploadArea.style.display = 'none';
-      document.getElementById('changeBtn').style.display = 'block';
-      scanReceipt();
-    };
-    img.src = ev.target.result;
-  };
-  reader.readAsDataURL(file);
+  if (!navigator.onLine) { showStatus('You appear to be offline. Please check your connection.', 'error'); return; }
+  const compressed = await compressImage(file);
+  uploadedPhotos = [compressed];
+  const preview = document.getElementById('previewImg');
+  preview.src = compressed.dataUrl;
+  preview.style.display = 'block';
+  uploadArea.style.display = 'none';
+  document.getElementById('changeBtn').style.display = 'block';
+  scanReceipts();
 }
 
-function resetUpload() {
-  imageBase64 = null;
-  previewImg.style.display = 'none';
+function resetSingle() {
+  uploadedPhotos = [];
+  storeGroups = [];
+  document.getElementById('previewImg').style.display = 'none';
   uploadArea.style.display = 'block';
   document.getElementById('changeBtn').style.display = 'none';
   document.getElementById('resultSection').style.display = 'none';
@@ -186,211 +226,367 @@ function resetUpload() {
   fileInput.value = '';
 }
 
-function resetAll() {
-  resetUpload();
-  parsedItems = [];
+// ---- Multi mode ----
+document.getElementById('multiFileInput').addEventListener('change', async function(e) {
+  const files = Array.from(e.target.files);
+  const remaining = 6 - uploadedPhotos.length;
+  for (const file of files.slice(0, remaining)) {
+    const compressed = await compressImage(file);
+    const isDupe = uploadedPhotos.some(p => Math.abs(p.base64.length - compressed.base64.length) < 200);
+    if (!isDupe) uploadedPhotos.push(compressed);
+  }
+  renderPhotoGrid();
+  this.value = '';
+});
+
+function renderPhotoGrid() {
+  const grid = document.getElementById('photoGrid');
+  grid.innerHTML = '';
+  uploadedPhotos.forEach((photo, i) => {
+    const thumb = document.createElement('div');
+    thumb.className = 'photo-thumb';
+    thumb.innerHTML = `<img src="${photo.dataUrl}" alt="Receipt ${i+1}" /><button class="remove-btn" onclick="removePhoto(${i})">✕</button>`;
+    grid.appendChild(thumb);
+  });
+  if (uploadedPhotos.length < 6) {
+    const addBtn = document.createElement('div');
+    addBtn.className = 'add-photo-btn';
+    addBtn.innerHTML = '<span style="font-size:24px;">+</span><span>Add photo</span>';
+    addBtn.onclick = () => document.getElementById('multiFileInput').click();
+    grid.appendChild(addBtn);
+  }
+  document.getElementById('scanBtn').disabled = uploadedPhotos.length === 0;
 }
 
-function showStatus(msg, type) {
+function removePhoto(idx) {
+  uploadedPhotos.splice(idx, 1);
+  renderPhotoGrid();
+  if (uploadedPhotos.length === 0) {
+    document.getElementById('resultSection').style.display = 'none';
+    document.getElementById('statusMsg').style.display = 'none';
+  }
+}
+
+// ---- Status ----
+function showStatus(msg, type, progress) {
   const el = document.getElementById('statusMsg');
-  el.textContent = msg;
   el.className = 'status ' + type;
   el.style.display = 'block';
+  el.innerHTML = msg + (progress !== undefined
+    ? `<div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>`
+    : '');
 }
 
-async function scanReceipt() {
-  if (!navigator.onLine) {
-    showStatus('You appear to be offline. Please check your connection and try again.', 'error');
-    return;
-  }
-  showStatus('Scanning receipt with AI...', 'loading');
-  document.getElementById('resultSection').style.display = 'none';
+// ---- Prompt ----
+function buildPrompt() {
+  return `You are analyzing photos of one or more thrift store receipts. Photos may be different sections of the same receipt, or receipts from completely different stores.
 
-  const prompt = `You are analyzing a thrift store receipt image. Extract ALL purchased items.
+Group all items by store. For each store group provide:
+- store: Full store name in Title Case. For chain stores include city if visible in the receipt address, formatted as "Store Name (City)" e.g. "Goodwill (Edmonds)", "Value Village (Lynnwood)". If no city visible, just use store name. If store is unidentifiable, use "Unknown Store".
+- date: purchase date in YYYY-MM-DD format if visible, otherwise empty string
+- subtotal: numeric subtotal before tax if visible (number only), otherwise null
+- tax_amount: numeric tax charged if visible (number only), otherwise null
+- tax_rate: if BOTH subtotal and tax_amount are visible, calculate as tax_amount/subtotal rounded to 4 decimal places (e.g. 0.0921). Otherwise null.
+- tax_estimated: true if tax_rate could not be calculated from receipt data, false if calculated
+- items: array of purchased items
 
-For each item, provide:
-- name: descriptive item name (e.g. "Flannel shirt", "Denim jeans", "Leather boots")
+For each item:
+- name: descriptive name in Title Case (e.g. "Flannel Shirt", "Levi's Denim Jeans"). If receipt only prints a generic code like "Clothing" or "Misc", use it but set low_confidence to true
 - category: one of Tops, Bottoms, Shoes, Outerwear, Accessories, Dress, Other
-- gender: one of Mens, Womens, Unisex, Kids (infer from item name/description if possible, default to Unisex if unclear)
-- cost: numeric price in dollars (just the number, no $ sign)
+- gender: one of Mens, Womens, Unisex, Kids — infer from item name if possible
+- cost: numeric price (number only, no $ sign)
+- low_confidence: true if item name was vague, unclear or generic — otherwise false
 
-Also extract:
-- store: store name if visible
-- date: date of purchase in YYYY-MM-DD format if visible (otherwise empty string)
+If multiple photos show the same store, merge into one group. Keep separate receipts from the same chain as separate groups only if dates differ.
 
-Respond ONLY with valid JSON in this exact format, no other text:
+Respond ONLY with valid JSON, no preamble or markdown:
 {
-  "store": "store name or empty string",
-  "date": "YYYY-MM-DD or empty string",
-  "items": [
-    {"name": "item name", "category": "category", "gender": "Unisex", "cost": 4.99},
-    ...
+  "groups": [
+    {
+      "store": "Store Name (City)",
+      "date": "YYYY-MM-DD",
+      "subtotal": 42.00,
+      "tax_amount": 3.87,
+      "tax_rate": 0.0921,
+      "tax_estimated": false,
+      "items": [
+        {"name": "Item Name", "category": "Tops", "gender": "Mens", "cost": 8.00, "low_confidence": false}
+      ]
+    }
   ]
 }`;
+}
+
+// ---- API call ----
+async function callAPI() {
+  const content = uploadedPhotos.map(p => ({
+    type: 'image',
+    source: { type: 'base64', media_type: 'image/jpeg', data: p.base64 }
+  }));
+  content.push({ type: 'text', text: buildPrompt() });
+
+  const response = await fetch(PROXY_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2000,
+      messages: [{ role: 'user', content }]
+    })
+  });
+  const data = await response.json();
+  if (data.error) throw new Error(data.error.message);
+  const text = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+  return JSON.parse(text.replace(/```json|```/g, '').trim());
+}
+
+// ---- Scan (both modes) ----
+async function scanReceipts() {
+  if (!navigator.onLine) { showStatus('You appear to be offline. Please check your connection.', 'error'); return; }
+  showStatus('Reading receipt' + (uploadedPhotos.length > 1 ? 's' : '') + '...', 'loading', 30);
+  document.getElementById('resultSection').style.display = 'none';
 
   try {
-    const response = await fetch("https://receipt-proxy.woodymgu.workers.dev/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1000,
-        messages: [{
-          role: "user",
-          content: [
-            { type: "image", source: { type: "base64", media_type: "image/jpeg", data: imageBase64 } },
-            { type: "text", text: prompt }
-          ]
-        }]
-      })
-    });
-
-    const data = await response.json();
-
-    if (data.error) throw new Error(data.error.message);
-
-    const text = data.content[0].text.trim();
-    const cleaned = text.replace(/```json|```/g, '').trim();
-    const result = JSON.parse(cleaned);
-
-    parsedItems = result.items || [];
-
-    if (parsedItems.length === 0) throw new Error("No items found on receipt. Try a clearer photo.");
-
-    if (result.date) document.getElementById('datePurchased').value = result.date;
-    if (result.store) document.getElementById('storeName').value = result.store;
-
-    renderItems();
-    document.getElementById('itemCountTag').textContent = parsedItems.length + ' item' + (parsedItems.length !== 1 ? 's' : '') + ' found';
-    document.getElementById('resultSection').style.display = 'block';
-    document.getElementById('statusMsg').style.display = 'none';
-
-  } catch (err) {
+    showStatus('Extracting items...', 'loading', 65);
+    const result = await callAPI();
+    processGroups(result.groups || []);
+  } catch(err) {
     showStatus('Error: ' + err.message, 'error');
   }
 }
 
-function renderItems() {
-  const list = document.getElementById('itemsList');
-  const categories = ['Tops','Bottoms','Shoes','Outerwear','Accessories','Dress','Other'];
-  const genders = ['Mens','Womens','Unisex','Kids'];
+async function scanMulti() {
+  if (!navigator.onLine) { showStatus('You appear to be offline.', 'error'); return; }
+  if (!uploadedPhotos.length) { showStatus('Please add at least one photo.', 'error'); return; }
+  const btn = document.getElementById('scanBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Scanning ' + uploadedPhotos.length + ' photo' + (uploadedPhotos.length > 1 ? 's' : '') + '...';
+  await scanReceipts();
+  btn.disabled = false;
+  btn.innerHTML = 'Scan all photos';
+}
 
-  list.innerHTML = parsedItems.map((item, i) => `
-    <div class="item-row">
-      <input type="checkbox" class="item-check" id="check_${i}" checked style="margin-top:4px; flex-shrink:0;" />
-      <div style="flex:1; min-width:0;">
-        <input type="text" value="${escHtml(item.name)}" id="name_${i}"
-          style="width:100%; padding:5px 8px; border:1.5px solid #ccc; border-radius:6px; font-size:13px; margin-bottom:6px; box-sizing:border-box;" />
-        <div style="display:flex; gap:6px; align-items:center; margin-bottom:6px;">
-          <select id="cat_${i}" style="flex:1; min-width:0; padding:5px 6px; border:1.5px solid #ccc; border-radius:6px; font-size:12px; color:#333;">
-            ${categories.map(c => `<option ${c === item.category ? 'selected' : ''}>${c}</option>`).join('')}
-          </select>
-          <select id="gender_${i}" style="flex:1; min-width:0; padding:5px 6px; border:1.5px solid #ccc; border-radius:6px; font-size:12px; color:#333;">
-            ${genders.map(g => `<option ${g === item.gender ? 'selected' : ''}>${g}</option>`).join('')}
-          </select>
-        </div>
-        <div style="display:flex; align-items:center; gap:3px;">
-          <span style="font-size:13px; color:#666;">$</span>
-          <input type="number" value="${item.cost.toFixed(2)}" id="cost_${i}" step="0.01" min="0"
-            style="width:72px; padding:5px 6px; border:1.5px solid #ccc; border-radius:6px; font-size:13px; text-align:right;" />
+// ---- Process groups ----
+function processGroups(groups) {
+  if (!groups.length) { showStatus('No items found. Try a clearer photo.', 'error'); return; }
+
+  storeGroups = groups.map((g, i) => ({
+    id: i,
+    store: g.store || 'Unknown Store',
+    date: g.date || '',
+    taxRate: g.tax_rate !== null && g.tax_rate !== undefined
+      ? (g.tax_rate * 100).toFixed(2)
+      : '9.20',
+    taxCalculated: !g.tax_estimated,
+    items: (g.items || []).map((item, j) => ({
+      id: i + '_' + j,
+      name: item.name || '',
+      category: item.category || 'Other',
+      gender: item.gender || 'Unisex',
+      cost: typeof item.cost === 'number' ? item.cost : 0,
+      lowConfidence: !!item.low_confidence,
+      checked: true
+    })),
+    submitted: false,
+    collapsed: false
+  }));
+
+  renderGroups();
+  document.getElementById('statusMsg').style.display = 'none';
+  document.getElementById('resultSection').style.display = 'block';
+}
+
+// ---- Render groups ----
+const CATEGORIES = ['Tops','Bottoms','Shoes','Outerwear','Accessories','Dress','Other'];
+const GENDERS = ['Mens','Womens','Unisex','Kids'];
+
+function renderGroups() {
+  const container = document.getElementById('storeGroupsContainer');
+  container.innerHTML = storeGroups.map(g => renderGroup(g)).join('');
+}
+
+function renderGroup(group) {
+  const checkedCount = group.items.filter(i => i.checked).length;
+  const taxBadge = group.taxCalculated
+    ? '<span class="tax-badge tax-calculated">calculated from receipt</span>'
+    : '<span class="tax-badge tax-estimated">estimated — verify</span>';
+  const submittedBadge = group.submitted ? '<span class="submitted-badge">✓ Added</span>' : '';
+
+  const itemsHtml = group.items.map(item => {
+    const warn = item.lowConfidence ? '<span class="warn-badge">⚠ Check name</span>' : '';
+    return `<div class="item-row">
+      <div class="item-row-top">
+        <input type="checkbox" class="item-check" id="chk_${item.id}"
+          ${item.checked ? 'checked' : ''} onchange="toggleItem(${group.id},'${item.id}',this.checked)" />
+        <div style="flex:1; min-width:0;">
+          <div style="display:flex; align-items:center; gap:4px; margin-bottom:5px; flex-wrap:wrap;">
+            <input type="text" value="${escHtml(item.name)}" id="name_${item.id}"
+              style="flex:1; min-width:120px; padding:5px 8px; border:1.5px solid #ccc; border-radius:6px; font-size:13px;" />
+            ${warn}
+          </div>
+          <div class="item-row-inputs">
+            <select id="cat_${item.id}" style="flex:1; min-width:0; padding:5px 6px; border:1.5px solid #ccc; border-radius:6px; font-size:12px;">
+              ${CATEGORIES.map(c => `<option ${c===item.category?'selected':''}>${c}</option>`).join('')}
+            </select>
+            <select id="gender_${item.id}" style="flex:1; min-width:0; padding:5px 6px; border:1.5px solid #ccc; border-radius:6px; font-size:12px;">
+              ${GENDERS.map(g => `<option ${g===item.gender?'selected':''}>${g}</option>`).join('')}
+            </select>
+            <div style="display:flex; align-items:center; gap:3px; flex-shrink:0;">
+              <span style="font-size:13px; color:#666;">$</span>
+              <input type="number" value="${item.cost.toFixed(2)}" id="cost_${item.id}"
+                step="0.01" min="0" style="width:68px; padding:5px 6px; border:1.5px solid #ccc; border-radius:6px; font-size:13px; text-align:right;" />
+            </div>
+          </div>
         </div>
       </div>
+    </div>`;
+  }).join('');
+
+  const submitButton = group.submitted
+    ? '<p style="font-size:13px; color:#2D6A4F; font-weight:600; margin-top:8px;">✓ Items added to sheet</p>'
+    : `<button class="btn-store" onclick="submitGroup(${group.id})">Add this store only →</button>`;
+
+  return `<div class="store-group" id="group_${group.id}">
+    <div class="store-group-header ${group.collapsed?'collapsed':''}" onclick="toggleCollapse(${group.id})">
+      <span class="store-name-display">${escHtml(group.store)}</span>
+      <span class="item-count" id="count_${group.id}">${checkedCount} item${checkedCount!==1?'s':''}</span>
+      ${submittedBadge}
+      <span class="collapse-icon">▼</span>
     </div>
-  `).join('');
+    <div class="store-group-body ${group.collapsed?'hidden':''}" id="body_${group.id}">
+      <div style="display:flex; gap:10px; margin-bottom:12px;">
+        <div class="field" style="flex:1; margin-bottom:0;">
+          <label>Store name</label>
+          <input type="text" id="store_${group.id}" value="${escHtml(group.store)}" />
+        </div>
+        <div class="field" style="width:130px; margin-bottom:0;">
+          <label>Date purchased</label>
+          <input type="date" id="date_${group.id}" value="${group.date}" />
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:12px;">
+        <label>Sales tax rate ${taxBadge}</label>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <input type="number" id="tax_${group.id}" value="${group.taxRate}" step="0.01" min="0" max="20"
+            style="width:90px;" />
+          <span style="font-size:13px; color:#555;">%</span>
+          <span style="font-size:12px; color:#888;">Default 9.20% (Snohomish Co.)</span>
+        </div>
+      </div>
+      <div class="items-list">${itemsHtml}</div>
+      ${submitButton}
+    </div>
+  </div>`;
+}
+
+function toggleCollapse(groupId) {
+  const group = storeGroups.find(g => g.id === groupId);
+  group.collapsed = !group.collapsed;
+  document.querySelector(`#group_${groupId} .store-group-header`).classList.toggle('collapsed', group.collapsed);
+  document.getElementById(`body_${groupId}`).classList.toggle('hidden', group.collapsed);
+}
+
+function toggleItem(groupId, itemId, checked) {
+  const group = storeGroups.find(g => g.id === groupId);
+  group.items.find(i => i.id === itemId).checked = checked;
+  const count = group.items.filter(i => i.checked).length;
+  document.getElementById(`count_${groupId}`).textContent = count + ' item' + (count !== 1 ? 's' : '');
+}
+
+// ---- Collect group payload ----
+function collectGroup(group) {
+  return {
+    source: document.getElementById('store_' + group.id).value.trim() || group.store,
+    taxRate: parseFloat(document.getElementById('tax_' + group.id).value) / 100 || 0.092,
+    items: group.items.filter(i => i.checked).map(item => ({
+      name: document.getElementById('name_' + item.id).value,
+      category: document.getElementById('cat_' + item.id).value,
+      gender: document.getElementById('gender_' + item.id).value,
+      cost: parseFloat(document.getElementById('cost_' + item.id).value) || 0,
+      date: document.getElementById('date_' + group.id).value
+    }))
+  };
+}
+
+// ---- Submit one store ----
+async function submitGroup(groupId) {
+  if (!navigator.onLine) { showStatus('You appear to be offline.', 'error'); return; }
+  const group = storeGroups.find(g => g.id === groupId);
+  const payload = collectGroup(group);
+  if (!payload.items.length) { showStatus('No items selected for ' + payload.source + '.', 'error'); return; }
+
+  showStatus('Adding ' + payload.source + '...', 'loading');
+  try {
+    await fetch(SHEET_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      mode: 'no-cors'
+    });
+    group.submitted = true;
+    renderGroups();
+    if (storeGroups.every(g => g.submitted)) {
+      showStatus('All stores added to your inventory sheet!', 'success');
+    } else {
+      document.getElementById('statusMsg').style.display = 'none';
+    }
+  } catch(err) {
+    showStatus('Error: ' + err.message, 'error');
+  }
+}
+
+// ---- Submit all ----
+async function sendAllToSheet() {
+  if (!navigator.onLine) { showStatus('You appear to be offline.', 'error'); return; }
+  const pending = storeGroups.filter(g => !g.submitted);
+  if (!pending.length) { showStatus('All stores already submitted!', 'success'); return; }
+
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Adding to sheet...';
+
+  let totalItems = 0;
+  for (const group of pending) {
+    const payload = collectGroup(group);
+    if (!payload.items.length) continue;
+    try {
+      await fetch(SHEET_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        mode: 'no-cors'
+      });
+      group.submitted = true;
+      totalItems += payload.items.length;
+    } catch(err) {
+      showStatus('Error adding ' + payload.source + ': ' + err.message, 'error');
+    }
+  }
+
+  renderGroups();
+  showStatus('Done! ' + totalItems + ' item' + (totalItems !== 1 ? 's' : '') + ' added across ' + pending.length + ' store' + (pending.length !== 1 ? 's' : '') + '.', 'success');
+  btn.innerHTML = 'Add all to Google Sheet';
+  btn.disabled = false;
+}
+
+// ---- Reset all ----
+function resetAll() {
+  uploadedPhotos = [];
+  storeGroups = [];
+  document.getElementById('resultSection').style.display = 'none';
+  document.getElementById('statusMsg').style.display = 'none';
+  if (!multiMode) {
+    document.getElementById('previewImg').style.display = 'none';
+    uploadArea.style.display = 'block';
+    document.getElementById('changeBtn').style.display = 'none';
+    fileInput.value = '';
+  } else {
+    renderPhotoGrid();
+  }
 }
 
 function escHtml(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-async function sendToSheet() {
-  if (!navigator.onLine) {
-    showStatus('You appear to be offline. Please check your connection and try again.', 'error');
-    return;
-  }
-  const sheetUrl = getSavedUrl();
-  if (!sheetUrl) { showStatus('Please enter your Google Apps Script URL above.', 'error'); return; }
-
-  const date = document.getElementById('datePurchased').value;
-  const source = document.getElementById('storeName').value;
-  const taxRate = parseFloat(document.getElementById('taxRate').value) / 100 || 0.092;
-
-  const selectedItems = parsedItems
-    .map((_, i) => {
-      if (!document.getElementById('check_' + i).checked) return null;
-      return {
-        name: document.getElementById('name_' + i).value,
-        category: document.getElementById('cat_' + i).value,
-        gender: document.getElementById('gender_' + i).value,
-        cost: parseFloat(document.getElementById('cost_' + i).value) || 0,
-        date: date
-      };
-    })
-    .filter(Boolean);
-
-  if (selectedItems.length === 0) { showStatus('Please select at least one item.', 'error'); return; }
-
-  const btn = document.getElementById('sendBtn');
-  btn.innerHTML = '<span class="spinner"></span>Adding to sheet...';
-  btn.disabled = true;
-  showStatus('Sending to Google Sheet...', 'loading');
-
-  try {
-    const response = await fetch(sheetUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items: selectedItems, source: source, taxRate: taxRate }),
-      mode: 'no-cors'
-    });
-
-    showStatus(`Done! ${selectedItems.length} item${selectedItems.length !== 1 ? 's' : ''} added to your inventory sheet.`, 'success');
-    btn.innerHTML = 'Add to Google Sheet';
-    btn.disabled = false;
-
-  } catch (err) {
-    showStatus('Error sending to sheet: ' + err.message + '. Double-check your Apps Script URL.', 'error');
-    btn.innerHTML = 'Add to Google Sheet';
-    btn.disabled = false;
-  }
-}
-
-function copyScript() {
-  const raw = `function doPost(e) {
-  try {
-    var data = JSON.parse(e.postData.contents);
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Inventory");
-    var items = data.items;
-
-    for (var i = 0; i < items.length; i++) {
-      var item = items[i];
-      var lastRow = sheet.getLastRow() + 1;
-      sheet.getRange(lastRow, 1).setValue(item.name || "");
-      sheet.getRange(lastRow, 2).setValue(item.category || "");
-      sheet.getRange(lastRow, 5).setValue(item.date || "");
-      sheet.getRange(lastRow, 6).setValue(item.cost || "");
-      sheet.getRange(lastRow, 7).setFormula("=IF(F" + lastRow + "<>\\"\\"" + ", F" + lastRow + "*0.101, \\"\\")");
-      sheet.getRange(lastRow, 8).setFormula("=IF(F" + lastRow + "<>\\"\\"" + ", F" + lastRow + "+G" + lastRow + ", \\"\\")");
-      sheet.getRange(lastRow, 9).setValue(data.source || "");
-      sheet.getRange(lastRow, 15).setValue("Unlisted");
-    }
-
-    return ContentService.createTextOutput(JSON.stringify({status: "ok", added: items.length}))
-      .setMimeType(ContentService.MimeType.JSON);
-  } catch(err) {
-    return ContentService.createTextOutput(JSON.stringify({status: "error", message: err.toString()}))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
-function doGet(e) {
-  return ContentService.createTextOutput(JSON.stringify({status: "ok", message: "Receipt scanner connected!"}))
-    .setMimeType(ContentService.MimeType.JSON);
-}`;
-  navigator.clipboard.writeText(raw).then(() => {
-    const btn = event.target;
-    btn.textContent = 'Copied!';
-    setTimeout(() => btn.textContent = 'Copy', 2000);
-  });
 }
 </script>
 </body>
